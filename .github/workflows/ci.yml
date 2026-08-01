@@ -1,0 +1,73 @@
+name: CI
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  verify:
+    name: Build & security checks
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Install function dependencies
+        run: npm --prefix functions ci
+
+      - name: Type-check / build functions
+        run: npm --prefix functions run build
+
+      - name: Syntax-check scripts and browser code
+        run: |
+          for f in scripts/*.mjs public/admin/main.js public/ar/main.js public/menu/main.js; do
+            [ -f "$f" ] && node --check "$f" && echo "ok $f"
+          done
+
+      - name: Validate firebase.json
+        run: node -e "JSON.parse(require('fs').readFileSync('firebase.json','utf8')); console.log('firebase.json ok')"
+
+      # Guardrail for the incident this audit was opened for: a Supabase JWT or a
+      # sb_secret key must never be committed again.
+      - name: Fail if secrets are committed
+        run: |
+          if git grep -nIE "(eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9\.|sb_secret_)" -- . ':!*.github/workflows/*'; then
+            echo "::error::A Supabase key appears to be committed. Rotate it and remove it from the repo."
+            exit 1
+          fi
+          echo "No committed Supabase keys found."
+
+      - name: Fail if .env is tracked
+        run: |
+          if git ls-files --error-unmatch .env 2>/dev/null; then
+            echo "::error::.env is tracked by git."
+            exit 1
+          fi
+          echo ".env is not tracked."
+
+      # Every admin/upload router must be behind requireAdmin.
+      - name: Assert admin routes are guarded
+        run: |
+          set -e
+          grep -q "requireAdmin" functions/src/routes/menu.js
+          grep -q "requireAdmin" functions/src/routes/upload.js
+          grep -q "requireAdmin" functions/src/routes/auth.js
+          echo "Auth middleware wired into all privileged routers."
+
+  smoke:
+    name: Production smoke test
+    runs-on: ubuntu-latest
+    needs: verify
+    if: github.ref == 'refs/heads/main' || github.event_name == 'workflow_dispatch'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify the live deployment rejects unauthenticated writes
+        run: node scripts/smoke-test.mjs https://talabati.rest

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Static sitemap. Per-restaurant menu URLs (/menu/<slug>) should be appended by
+  a build step once more restaurants are onboarded; keeping it static avoids
+  shipping a crawler-facing endpoint that hits the database on every request.
+-->
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+
+  <url>
+    <loc>https://talabati.rest/</loc>
+    <changefreq>weekly</changefreq>
+    <priority>1.0</priority>
+  </url>
+</urlset>

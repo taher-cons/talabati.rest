@@ -1,0 +1,239 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="description" content="Restaurant Menu - View our delicious dishes">
+  <meta name="theme-color" content="#1a1a2e">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Menu">
+  <title>Restaurant Menu</title>
+  
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+  <link rel="apple-touch-icon" href="/android-chrome-192x192.png">
+  
+  <!-- Styles -->
+  <!-- ?v= busts the previously cached copies: assets have no content hash in
+       their filename, so browsers held a stale main.js for up to an hour. -->
+  <link rel="stylesheet" href="/menu/styles.css?v=20260731b">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap">
+  
+  <!-- PWA -->
+  <link rel="manifest" href="/menu/manifest.json">
+</head>
+
+<body>
+  <!-- Loading Screen -->
+  <div id="loading-screen" class="loading-screen" role="status" aria-live="polite">
+    <div class="loading-content">
+      <div class="loading-logo">
+        <svg viewBox="0 0 100 100" class="loading-spinner">
+          <circle cx="50" cy="50" r="40" stroke="currentColor" stroke-width="4" fill="none" stroke-dasharray="150,100" stroke-linecap="round">
+            <animateTransform attributeName="transform" type="rotate" from="0 50 50" to="360 50 50" dur="1.5s" repeatCount="indefinite"/>
+          </circle>
+        </svg>
+      </div>
+      <h1 class="loading-title">Loading Menu...</h1>
+      <div class="loading-progress">
+        <div class="loading-bar" id="loading-bar"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div id="app" class="app" hidden>
+    <!-- Header -->
+    <header class="header" id="header">
+      <div class="header-content">
+        <div class="restaurant-brand">
+          <img id="restaurant-logo" src="" alt="Restaurant Logo" class="restaurant-logo">
+          <div class="restaurant-info">
+            <h1 id="restaurant-name" class="restaurant-name">Restaurant</h1>
+            <p id="restaurant-tagline" class="restaurant-tagline">Fine Dining Experience</p>
+          </div>
+        </div>
+        <div class="header-actions">
+          <button id="btn-ar-mode" class="btn-ar" aria-label="View in AR" title="View in Augmented Reality">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+              <path d="M21 3l-6 6m2 5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+            </svg>
+            <span>AR View</span>
+          </button>
+          <button id="btn-language" class="icon-btn" aria-label="Change Language" title="Language">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="10"/>
+              <line x1="2" y1="12" x2="22" y2="12"/>
+              <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+      
+      <!-- Category Navigation -->
+      <nav class="category-nav" id="category-nav" role="navigation" aria-label="Menu Categories">
+        <div class="category-scroll" id="category-scroll"></div>
+      </nav>
+    </header>
+
+    <!-- Main Content Area -->
+    <main class="main-content" id="main-content">
+      <!-- Hero Section -->
+      <section class="hero-section" id="hero-section" aria-labelledby="hero-title">
+        <div class="hero-content">
+          <h2 id="hero-title" class="hero-title">Our Specialties</h2>
+          <p class="hero-subtitle">Discover our chef's recommended dishes</p>
+        </div>
+        <div class="featured-carousel" id="featured-carousel" role="region" aria-label="Featured Dishes">
+          <div class="carousel-track" id="carousel-track"></div>
+          <button class="carousel-btn carousel-prev" id="carousel-prev" aria-label="Previous">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="15 18 9 12 15 6"/>
+            </svg>
+          </button>
+          <button class="carousel-btn carousel-next" id="carousel-next" aria-label="Next">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="9 18 15 12 9 6"/>
+            </svg>
+          </button>
+        </div>
+      </section>
+
+      <!-- Menu Sections -->
+      <section class="menu-sections" id="menu-sections" aria-label="Menu Categories">
+        <!-- Categories will be dynamically inserted here -->
+      </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer" id="footer">
+      <div class="footer-content">
+        <div class="footer-info">
+          <img id="footer-logo" src="" alt="" class="footer-logo">
+          <div class="footer-details">
+            <p id="footer-name" class="footer-name">Restaurant</p>
+            <p id="footer-address" class="footer-address">123 Culinary Street, Food City</p>
+          </div>
+        </div>
+        <div class="footer-links">
+          <a href="#" class="footer-link" id="link-website">Website</a>
+          <a href="#" class="footer-link" id="link-phone">Call Us</a>
+          <a href="#" class="footer-link" id="link-email">Email</a>
+        </div>
+        <div class="footer-social" id="footer-social">
+          <!-- Social links will be inserted -->
+        </div>
+        <p class="footer-copyright" id="footer-copyright">© 2024 Restaurant. All rights reserved.</p>
+      </div>
+    </footer>
+
+    <!-- Dish Detail Modal -->
+    <div id="dish-modal" class="modal hidden" role="dialog" aria-labelledby="modal-title" aria-modal="true">
+      <div class="modal-backdrop"></div>
+      <div class="modal-content">
+        <button class="modal-close" id="modal-close" aria-label="Close">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="18" y1="6" x2="6" y2="18"/>
+            <line x1="6" y1="6" x2="18" y2="18"/>
+          </svg>
+        </button>
+        <div class="modal-body">
+          <div class="modal-image" id="modal-image">
+            <img id="modal-img" src="" alt="">
+            <div class="modal-badges" id="modal-badges"></div>
+          </div>
+          <div class="modal-info">
+            <h2 id="modal-title" class="modal-title">Dish Name</h2>
+            <p id="modal-description" class="modal-description">Description</p>
+            <div class="modal-meta">
+              <span id="modal-price" class="modal-price">$0.00</span>
+              <span id="modal-category" class="modal-category">Main Course</span>
+            </div>
+            <div class="modal-nutrition" id="modal-nutrition" hidden>
+              <h3>Nutritional Information</h3>
+              <div class="nutrition-grid" id="modal-nutrition-grid"></div>
+            </div>
+            <div class="modal-allergens" id="modal-allergens" hidden>
+              <h3>Allergens</h3>
+              <div class="allergen-tags" id="modal-allergen-tags"></div>
+            </div>
+            <div class="modal-dietary" id="modal-dietary" hidden>
+              <h3>Dietary</h3>
+              <div class="dietary-tags" id="modal-dietary-tags"></div>
+            </div>
+            <div class="modal-actions">
+              <button id="modal-ar-btn" class="btn btn-primary">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                  <path d="M21 3l-6 6m2 5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                </svg>
+                View in AR
+              </button>
+              <button id="modal-order-btn" class="btn btn-accent">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/>
+                  <line x1="3" y1="6" x2="21" y2="6"/>
+                  <path d="M16 10a4 4 0 0 1-8 0"/>
+                </svg>
+                Add to Order
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Order Summary Sidebar -->
+    <aside id="order-sidebar" class="order-sidebar" aria-label="Your Order">
+      <div class="order-header">
+        <h2>Your Order</h2>
+        <button id="close-order" class="close-btn" aria-label="Close Order">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="18" y1="6" x2="6" y2="18"/>
+            <line x1="6" y1="6" x2="18" y2="18"/>
+          </svg>
+        </button>
+      </div>
+      <div class="order-items" id="order-items">
+        <p class="order-empty">Your order is empty</p>
+      </div>
+      <div class="order-summary" id="order-summary" hidden>
+        <div class="summary-row">
+          <span>Subtotal</span>
+          <span id="order-subtotal">$0.00</span>
+        </div>
+        <div class="summary-row">
+          <span>Tax</span>
+          <span id="order-tax">$0.00</span>
+        </div>
+        <div class="summary-row total">
+          <span>Total</span>
+          <span id="order-total">$0.00</span>
+        </div>
+        <button id="btn-checkout" class="btn btn-accent btn-full">Proceed to Checkout</button>
+      </div>
+    </aside>
+
+    <!-- Order Button (Mobile) -->
+    <button id="btn-order-toggle" class="order-toggle hidden" aria-label="View Order">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/>
+        <line x1="3" y1="6" x2="21" y2="6"/>
+        <path d="M16 10a4 4 0 0 1-8 0"/>
+      </svg>
+      <span class="order-count" id="order-count">0</span>
+      <span class="order-total-text" id="order-total-text">$0.00</span>
+    </button>
+
+    <!-- Toast Container -->
+    <div id="toast-container" class="toast-container" aria-live="polite"></div>
+  </div>
+
+  <!-- Scripts -->
+  <script type="module" src="/menu/main.js?v=20260731b"></script>
+</body>
+</html>

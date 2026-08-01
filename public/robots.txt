@@ -1,0 +1,13 @@
+# طلباتي — WebAR Menu
+# Public menu pages should be indexed; the admin panel and API must not be.
+
+User-agent: *
+Allow: /
+Allow: /menu/
+Disallow: /admin
+Disallow: /admin/
+Disallow: /api/
+# AR pages need a camera + a scanned QR code; they are useless in search results.
+Disallow: /ar/
+
+Sitemap: https://talabati.rest/sitemap.xml

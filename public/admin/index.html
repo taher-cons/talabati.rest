@@ -1,0 +1,995 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="WebAR Menu Admin Panel">
+  <meta name="theme-color" content="#1a1a2e">
+  <title>WebAR Menu Admin</title>
+  
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+  <link rel="apple-touch-icon" href="/android-chrome-192x192.png">
+  
+  <link rel="stylesheet" href="/admin/styles.css?v=20260731">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+</head>
+<body>
+  <div class="app">
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-header">
+        <div class="logo">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="32" height="32">
+            <path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+            <path d="M21 3l-6 6m2 5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+          </svg>
+          <span>WebAR Menu</span>
+        </div>
+        <button class="sidebar-toggle" id="sidebar-toggle" aria-label="Toggle sidebar">
+          <i class="ti ti-chevron-left"></i>
+        </button>
+      </div>
+      
+      <nav class="sidebar-nav">
+        <ul class="nav-list">
+          <li class="nav-item">
+            <a href="#dashboard" class="nav-link active" data-page="dashboard">
+              <i class="ti ti-layout-dashboard"></i>
+              <span>Dashboard</span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a href="#restaurants" class="nav-link" data-page="restaurants">
+              <i class="ti ti-building"></i>
+              <span>Restaurants</span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a href="#menus" class="nav-link" data-page="menus">
+              <i class="ti ti-menu-2"></i>
+              <span>Menus</span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a href="#dishes" class="nav-link" data-page="dishes">
+              <i class="ti ti-utensils"></i>
+              <span>Dishes</span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a href="#models" class="nav-link" data-page="models">
+              <i class="ti ti-cube"></i>
+              <span>3D Models</span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a href="#analytics" class="nav-link" data-page="analytics">
+              <i class="ti ti-chart-bar"></i>
+              <span>Analytics</span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a href="#settings" class="nav-link" data-page="settings">
+              <i class="ti ti-settings"></i>
+              <span>Settings</span>
+            </a>
+          </li>
+        </ul>
+      </nav>
+      
+      <div class="sidebar-footer">
+        <div class="user-info">
+          <div class="user-avatar">A</div>
+          <div class="user-details">
+            <span class="user-name">Admin User</span>
+            <span class="user-role">Administrator</span>
+          </div>
+        </div>
+        <button class="btn btn-ghost btn-sm" id="btn-logout">
+          <i class="ti ti-logout"></i>
+          <span>Logout</span>
+        </button>
+      </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content" id="main-content">
+      <!-- Top Bar -->
+      <header class="top-bar">
+        <div class="top-bar-left">
+          <button class="mobile-menu-btn" id="mobile-menu-btn" aria-label="Open menu">
+            <i class="ti ti-menu-2"></i>
+          </button>
+          <h1 class="page-title" id="page-title">Dashboard</h1>
+        </div>
+        
+        <div class="top-bar-right">
+          <div class="search-box">
+            <i class="ti ti-search"></i>
+            <input type="text" placeholder="Search..." id="global-search">
+          </div>
+          
+          <button class="icon-btn" id="btn-notifications" aria-label="Notifications">
+            <i class="ti ti-bell"></i>
+            <span class="notification-badge">3</span>
+          </button>
+          
+          <div class="user-menu" id="user-menu">
+            <button class="user-menu-trigger" id="user-menu-trigger">
+              <div class="user-avatar-sm">A</div>
+              <span>Admin</span>
+              <i class="ti ti-chevron-down"></i>
+            </button>
+            <div class="user-dropdown" id="user-dropdown">
+              <a href="#" class="dropdown-item">
+                <i class="ti ti-user"></i>
+                <span>Profile</span>
+              </a>
+              <a href="#" class="dropdown-item">
+                <i class="ti ti-settings"></i>
+                <span>Settings</span>
+              </a>
+              <div class="dropdown-divider"></div>
+              <button class="dropdown-item" id="dropdown-logout">
+                <i class="ti ti-logout"></i>
+                <span>Logout</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <!-- Page Content -->
+      <div class="page-content" id="page-content">
+        <!-- Dashboard Page -->
+        <div class="page" id="page-dashboard" data-page="dashboard">
+          <div class="stats-grid">
+            <div class="stat-card">
+              <div class="stat-icon primary">
+                <i class="ti ti-building"></i>
+              </div>
+              <div class="stat-info">
+                <span class="stat-value" id="stat-restaurants">0</span>
+                <span class="stat-label">Restaurants</span>
+              </div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-icon success">
+                <i class="ti ti-menu-2"></i>
+              </div>
+              <div class="stat-info">
+                <span class="stat-value" id="stat-menus">0</span>
+                <span class="stat-label">Active Menus</span>
+              </div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-icon warning">
+                <i class="ti ti-utensils"></i>
+              </div>
+              <div class="stat-info">
+                <span class="stat-value" id="stat-dishes">0</span>
+                <span class="stat-label">Total Dishes</span>
+              </div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-icon info">
+                <i class="ti ti-cube"></i>
+              </div>
+              <div class="stat-info">
+                <span class="stat-value" id="stat-models">0</span>
+                <span class="stat-label">3D Models</span>
+              </div>
+            </div>
+          </div>
+          
+          <div class="dashboard-grid">
+            <div class="card">
+              <div class="card-header">
+                <h2>Recent Activity</h2>
+                <a href="#activity" class="btn btn-ghost btn-sm">View All</a>
+              </div>
+              <div class="activity-list" id="recent-activity">
+                <div class="activity-empty">No recent activity</div>
+              </div>
+            </div>
+            
+            <div class="card">
+              <div class="card-header">
+                <h2>Quick Actions</h2>
+              </div>
+              <div class="quick-actions">
+                <button class="action-btn" data-action="create-restaurant">
+                  <i class="ti ti-building"></i>
+                  <span>Add Restaurant</span>
+                </button>
+                <button class="action-btn" data-action="create-menu">
+                  <i class="ti ti-menu-2"></i>
+                  <span>Create Menu</span>
+                </button>
+                <button class="action-btn" data-action="upload-model">
+                  <i class="ti ti-cube"></i>
+                  <span>Upload 3D Model</span>
+                </button>
+                <button class="action-btn" data-action="view-analytics">
+                  <i class="ti ti-chart-bar"></i>
+                  <span>View Analytics</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Restaurants Page -->
+        <div class="page hidden" id="page-restaurants" data-page="restaurants">
+          <div class="page-header">
+            <h2>Restaurants</h2>
+            <button class="btn btn-primary" id="btn-add-restaurant">
+              <i class="ti ti-plus"></i>
+              <span>Add Restaurant</span>
+            </button>
+          </div>
+          
+          <div class="card">
+            <div class="table-container">
+              <table class="data-table" id="restaurants-table">
+                <thead>
+                  <tr>
+                    <th>Name</th>
+                    <th>Slug</th>
+                    <th>Status</th>
+                    <th>Menus</th>
+                    <th>Created</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="restaurants-tbody"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- Menus Page -->
+        <div class="page hidden" id="page-menus" data-page="menus">
+          <div class="page-header">
+            <h2>Menus</h2>
+            <button class="btn btn-primary" id="btn-add-menu">
+              <i class="ti ti-plus"></i>
+              <span>Create Menu</span>
+            </button>
+          </div>
+          
+          <div class="card">
+            <div class="table-container">
+              <table class="data-table" id="menus-table">
+                <thead>
+                  <tr>
+                    <th>Name</th>
+                    <th>Restaurant</th>
+                    <th>Categories</th>
+                    <th>Dishes</th>
+                    <th>Status</th>
+                    <th>AR Enabled</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="menus-tbody"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- Dishes Page -->
+        <div class="page hidden" id="page-dishes" data-page="dishes">
+          <div class="page-header">
+            <h2>Dishes</h2>
+            <div class="page-header-actions">
+              <select class="select" id="filter-restaurant">
+                <option value="">All Restaurants</option>
+              </select>
+              <select class="select" id="filter-category">
+                <option value="">All Categories</option>
+                <option value="appetizer">Appetizer</option>
+                <option value="main">Main Course</option>
+                <option value="dessert">Dessert</option>
+                <option value="drink">Drink</option>
+                <option value="special">Special</option>
+              </select>
+              <button class="btn btn-primary" id="btn-add-dish">
+                <i class="ti ti-plus"></i>
+                <span>Add Dish</span>
+              </button>
+            </div>
+          </div>
+          
+          <div class="card">
+            <div class="table-container">
+              <table class="data-table" id="dishes-table">
+                <thead>
+                  <tr>
+                    <th>Image</th>
+                    <th>Name</th>
+                    <th>Restaurant</th>
+                    <th>Category</th>
+                    <th>Price</th>
+                    <th>3D Model</th>
+                    <th>Featured</th>
+                    <th>Available</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="dishes-tbody"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- 3D Models Page -->
+        <div class="page hidden" id="page-models" data-page="models">
+          <div class="page-header">
+            <h2>3D Models</h2>
+            <button class="btn btn-primary" id="btn-upload-model">
+              <i class="ti ti-upload"></i>
+              <span>Upload Model</span>
+            </button>
+          </div>
+          
+          <div class="card">
+            <div class="models-grid" id="models-grid">
+              <div class="model-empty">
+                <i class="ti ti-cube"></i>
+                <h3>No 3D Models</h3>
+                <p>Upload GLB/GLTF models for your dishes</p>
+                <button class="btn btn-primary" id="btn-upload-model-2">
+                  <i class="ti ti-upload"></i>
+                  <span>Upload Model</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Analytics Page -->
+        <div class="page hidden" id="page-analytics" data-page="analytics">
+          <div class="page-header">
+            <h2>Analytics</h2>
+            <div class="page-header-actions">
+              <select class="select" id="analytics-menu">
+                <option value="">All Menus</option>
+              </select>
+              <select class="select" id="analytics-period">
+                <option value="7d">Last 7 Days</option>
+                <option value="30d" selected>Last 30 Days</option>
+                <option value="90d">Last 90 Days</option>
+              </select>
+            </div>
+          </div>
+          
+          <div class="stats-grid" id="analytics-stats">
+            <div class="stat-card">
+              <div class="stat-icon primary"><i class="ti ti-eye"></i></div>
+              <div class="stat-info">
+                <span class="stat-value" id="analytics-views">0</span>
+                <span class="stat-label">Menu Views</span>
+              </div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-icon success"><i class="ti ti-device-mobile"></i></div>
+              <div class="stat-info">
+                <span class="stat-value" id="analytics-ar-views">0</span>
+                <span class="stat-label">AR Views</span>
+              </div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-icon warning"><i class="ti ti-shopping-cart"></i></div>
+              <div class="stat-info">
+                <span class="stat-value" id="analytics-orders">0</span>
+                <span class="stat-label">Orders</span>
+              </div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-icon info"><i class="ti ti-trending-up"></i></div>
+              <div class="stat-info">
+                <span class="stat-value" id="analytics-conversion">0%</span>
+                <span class="stat-label">Conversion</span>
+              </div>
+            </div>
+          </div>
+          
+          <div class="dashboard-grid">
+            <div class="card">
+              <div class="card-header">
+                <h2>Popular Dishes</h2>
+              </div>
+              <div class="table-container">
+                <table class="data-table" id="popular-dishes-table">
+                  <thead>
+                    <tr>
+                      <th>Dish</th>
+                      <th>Views</th>
+                      <th>AR Views</th>
+                      <th>Orders</th>
+                      <th>Conversion</th>
+                    </tr>
+                  </thead>
+                  <tbody id="popular-dishes-tbody"></tbody>
+                </table>
+              </div>
+            </div>
+            
+            <div class="card">
+              <div class="card-header">
+                <h2>Category Performance</h2>
+              </div>
+              <div id="category-performance">
+                <div class="performance-empty">No data available</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Settings Page -->
+        <div class="page hidden" id="page-settings" data-page="settings">
+          <div class="page-header">
+            <h2>Settings</h2>
+          </div>
+          
+          <div class="settings-grid">
+            <div class="card">
+              <div class="card-header">
+                <h2>General Settings</h2>
+              </div>
+              <form class="settings-form" id="general-settings-form">
+                <div class="form-group">
+                  <label>App Name</label>
+                  <input type="text" class="input" value="WebAR Menu" id="setting-app-name">
+                </div>
+                <div class="form-group">
+                  <label>Default Language</label>
+                  <select class="select" id="setting-default-lang">
+                    <option value="en">English</option>
+                    <option value="ar">Arabic</option>
+                    <option value="fr">French</option>
+                    <option value="es">Spanish</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label>Default Currency</label>
+                  <select class="select" id="setting-default-currency">
+                    <option value="DZD" selected>DZD (د.ج)</option>
+                    <option value="USD">USD ($)</option>
+                    <option value="EUR">EUR (€)</option>
+                    <option value="GBP">GBP (£)</option>
+                    <option value="SAR">SAR (﷼)</option>
+                    <option value="AED">AED (د.إ)</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label class="checkbox-label">
+                    <input type="checkbox" id="setting-maintenance">
+                    <span class="checkbox-custom"></span>
+                    <span>Maintenance Mode</span>
+                  </label>
+                </div>
+                <div class="form-group">
+                  <label class="checkbox-label">
+                    <input type="checkbox" id="setting-analytics" checked>
+                    <span class="checkbox-custom"></span>
+                    <span>Enable Analytics</span>
+                  </label>
+                </div>
+                <button type="submit" class="btn btn-primary">Save Settings</button>
+              </form>
+            </div>
+            
+            <div class="card">
+              <div class="card-header">
+                <h2>AR Settings</h2>
+              </div>
+              <form class="settings-form" id="ar-settings-form">
+                <div class="form-group">
+                  <label>Default AR Mode</label>
+                  <select class="select" id="setting-ar-mode">
+                    <option value="surface">Surface Detection</option>
+                    <option value="marker">Image Marker</option>
+                    <option value="both">Both</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label>Model Quality</label>
+                  <select class="select" id="setting-model-quality">
+                    <option value="high">High (Original)</option>
+                    <option value="medium" selected>Medium (Compressed)</option>
+                    <option value="low">Low (Mobile Optimized)</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label>Auto Rotate Models</label>
+                  <select class="select" id="setting-auto-rotate">
+                    <option value="true">Enabled</option>
+                    <option value="false">Disabled</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label class="checkbox-label">
+                    <input type="checkbox" id="setting-shadows" checked>
+                    <span class="checkbox-custom"></span>
+                    <span>Enable Shadows</span>
+                  </label>
+                </div>
+                <div class="form-group">
+                  <label class="checkbox-label">
+                    <input type="checkbox" id="setting-gestures" checked>
+                    <span class="checkbox-custom"></span>
+                    <span>Enable Gestures</span>
+                  </label>
+                </div>
+                <button type="submit" class="btn btn-primary">Save AR Settings</button>
+              </form>
+            </div>
+            
+            <div class="card">
+              <div class="card-header">
+                <h2>API & Integrations</h2>
+              </div>
+          <form class="settings-form" id="api-settings-form">
+                <div class="form-group">
+                  <label>Supabase Project URL</label>
+                  <input type="url" class="input" placeholder="https://your-project.supabase.co" id="setting-supabase-url">
+                </div>
+                <div class="form-group">
+                  <label>Supabase Anon Key</label>
+                  <input type="password" class="input" placeholder="••••••••" id="setting-supabase-key">
+                </div>
+                <div class="form-group">
+                  <label>CDN Base URL</label>
+                  <input type="url" class="input" placeholder="https://cdn.example.com" id="setting-cdn-url">
+                </div>
+                <div class="form-group">
+                  <label>Webhook URL</label>
+                  <input type="url" class="input" placeholder="https://api.example.com/webhook" id="setting-webhook-url">
+                </div>
+                <button type="submit" class="btn btn-primary">Save API Settings</button>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Modals -->
+  <!-- Restaurant Modal -->
+  <div class="modal hidden" id="restaurant-modal" role="dialog" aria-labelledby="restaurant-modal-title" aria-modal="true">
+    <div class="modal-backdrop"></div>
+    <div class="modal-content modal-lg">
+      <div class="modal-header">
+        <h2 id="restaurant-modal-title">Add Restaurant</h2>
+        <button class="modal-close" aria-label="Close"><i class="ti ti-x"></i></button>
+      </div>
+      <form class="modal-body" id="restaurant-form">
+        <input type="hidden" id="restaurant-id">
+        <div class="form-row">
+          <div class="form-group">
+            <label>Name *</label>
+            <input type="text" class="input" id="restaurant-name" required>
+          </div>
+          <div class="form-group">
+            <label>Name (Arabic)</label>
+            <input type="text" class="input" id="restaurant-name-ar">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Slug *</label>
+            <input type="text" class="input" id="restaurant-slug" required pattern="[a-z0-9-]+">
+          </div>
+          <div class="form-group">
+            <label>Phone</label>
+            <input type="tel" class="input" id="restaurant-phone">
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Email</label>
+          <input type="email" class="input" id="restaurant-email">
+        </div>
+        <div class="form-group">
+          <label>Address</label>
+          <textarea class="input" id="restaurant-address" rows="2"></textarea>
+        </div>
+        <div class="form-group">
+          <label>Description</label>
+          <textarea class="input" id="restaurant-description" rows="3"></textarea>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Primary Color</label>
+            <input type="color" class="input color-input" id="restaurant-primary-color" value="#1a1a2e">
+          </div>
+          <div class="form-group">
+            <label>Accent Color</label>
+            <input type="color" class="input color-input" id="restaurant-accent-color" value="#e94560">
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Logo</label>
+          <input type="file" class="input" id="restaurant-logo" accept="image/*">
+        </div>
+        <div class="form-group">
+          <label class="checkbox-label">
+            <input type="checkbox" id="restaurant-published">
+            <span class="checkbox-custom"></span>
+            <span>Published</span>
+          </label>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-primary">Save Restaurant</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Menu Modal -->
+  <div class="modal hidden" id="menu-modal" role="dialog" aria-labelledby="menu-modal-title" aria-modal="true">
+    <div class="modal-backdrop"></div>
+    <div class="modal-content modal-lg">
+      <div class="modal-header">
+        <h2 id="menu-modal-title">Create Menu</h2>
+        <button class="modal-close" aria-label="Close"><i class="ti ti-x"></i></button>
+      </div>
+      <form class="modal-body" id="menu-form">
+        <input type="hidden" id="menu-id">
+        <div class="form-group">
+          <label>Restaurant *</label>
+          <select class="select" id="menu-restaurant" required></select>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Name *</label>
+            <input type="text" class="input" id="menu-name" required>
+          </div>
+          <div class="form-group">
+            <label>Name (Arabic)</label>
+            <input type="text" class="input" id="menu-name-ar">
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Description</label>
+          <textarea class="input" id="menu-description" rows="3"></textarea>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Language</label>
+            <select class="select" id="menu-language">
+              <option value="en">English</option>
+              <option value="ar">Arabic</option>
+              <option value="fr">French</option>
+              <option value="es">Spanish</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="checkbox-label">
+              <input type="checkbox" id="menu-rtl">
+              <span class="checkbox-custom"></span>
+              <span>RTL</span>
+            </label>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="checkbox-label">
+              <input type="checkbox" id="menu-show-prices" checked>
+              <span class="checkbox-custom"></span>
+              <span>Show Prices</span>
+            </label>
+          </div>
+          <div class="form-group">
+            <label class="checkbox-label">
+              <input type="checkbox" id="menu-enable-ar" checked>
+              <span class="checkbox-custom"></span>
+              <span>Enable AR</span>
+            </label>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>AR Mode</label>
+          <select class="select" id="menu-ar-mode">
+            <option value="markerless">Markerless (Surface)</option>
+            <option value="marker">Marker-based</option>
+            <option value="both">Both</option>
+          </select>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-primary">Save Menu</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Dish Modal -->
+  <div class="modal hidden" id="dish-modal" role="dialog" aria-labelledby="dish-modal-title" aria-modal="true">
+    <div class="modal-backdrop"></div>
+    <div class="modal-content modal-xl">
+      <div class="modal-header">
+        <h2 id="dish-modal-title">Add Dish</h2>
+        <button class="modal-close" aria-label="Close"><i class="ti ti-x"></i></button>
+      </div>
+      <form class="modal-body" id="dish-form">
+        <input type="hidden" id="dish-id">
+        <input type="hidden" id="dish-menu-id">
+        <div class="form-row">
+          <div class="form-group">
+            <label>Menu *</label>
+            <select class="select" id="dish-menu" required></select>
+          </div>
+          <div class="form-group">
+            <label>Category *</label>
+            <!-- Options are filled from the selected menu's real categories
+                 (see populateDishCategories in main.js). The hard-coded list
+                 that used to live here never matched the restaurant's own
+                 categories, so saved dishes landed in a category the customer
+                 page could not display. -->
+            <select class="select" id="dish-category" required>
+              <option value="">Select a menu first…</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Name *</label>
+            <input type="text" class="input" id="dish-name" required>
+          </div>
+          <div class="form-group">
+            <label>Name (Arabic)</label>
+            <input type="text" class="input" id="dish-name-ar">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Price *</label>
+            <input type="number" class="input" id="dish-price" step="0.01" min="0" required>
+          </div>
+          <div class="form-group">
+            <label>Currency</label>
+            <select class="select" id="dish-currency">
+              <option value="DZD" selected>DZD (د.ج)</option>
+              <option value="USD">USD</option>
+              <option value="EUR">EUR</option>
+              <option value="GBP">GBP</option>
+              <option value="SAR">SAR</option>
+              <option value="AED">AED</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Description</label>
+          <textarea class="input" id="dish-description" rows="3"></textarea>
+        </div>
+        <div class="form-group">
+          <label>Description (Arabic)</label>
+          <textarea class="input" id="dish-description-ar" rows="3"></textarea>
+        </div>
+        
+        <!-- 3D Model Section -->
+        <fieldset class="form-section">
+          <legend>3D Model Configuration</legend>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Model File (GLB/GLTF)</label>
+              <input type="file" class="input" id="dish-model-file" accept=".glb,.gltf">
+            </div>
+            <div class="form-group">
+              <label>Thumbnail</label>
+              <input type="file" class="input" id="dish-thumbnail" accept="image/*">
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Scale X</label>
+              <input type="number" class="input" id="dish-scale-x" step="0.1" value="1">
+            </div>
+            <div class="form-group">
+              <label>Scale Y</label>
+              <input type="number" class="input" id="dish-scale-y" step="0.1" value="1">
+            </div>
+            <div class="form-group">
+              <label>Scale Z</label>
+              <input type="number" class="input" id="dish-scale-z" step="0.1" value="1">
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Position X</label>
+              <input type="number" class="input" id="dish-pos-x" step="0.1" value="0">
+            </div>
+            <div class="form-group">
+              <label>Position Y</label>
+              <input type="number" class="input" id="dish-pos-y" step="0.1" value="0">
+            </div>
+            <div class="form-group">
+              <label>Position Z</label>
+              <input type="number" class="input" id="dish-pos-z" step="0.1" value="0">
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Rotation X (°)</label>
+              <input type="number" class="input" id="dish-rot-x" step="15" value="0">
+              <small class="form-hint">تصحّح الطبق الواقف عمودياً — جرّب 90 أو -90</small>
+            </div>
+            <div class="form-group">
+              <label>Rotation Y (°)</label>
+              <input type="number" class="input" id="dish-rot-y" step="15" value="0">
+            </div>
+            <div class="form-group">
+              <label>Rotation Z (°)</label>
+              <input type="number" class="input" id="dish-rot-z" step="15" value="0">
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Animation</label>
+              <select class="select" id="dish-animation">
+                <option value="rotate">Rotate</option>
+                <option value="float">Float</option>
+                <option value="spin">Spin</option>
+                <option value="none">None</option>
+              </select>
+            </div>
+          </div>
+        </fieldset>
+        
+        <!-- AR Config Section -->
+        <fieldset class="form-section">
+          <legend>AR Configuration</legend>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Marker Type</label>
+              <select class="select" id="dish-marker-type">
+                <option value="surface">Surface Detection</option>
+                <option value="image">Image Marker</option>
+                <option value="location">Location-based</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Marker Image</label>
+              <input type="file" class="input" id="dish-marker-image" accept="image/*">
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="checkbox-label">
+                <input type="checkbox" id="dish-surface-detection" checked>
+                <span class="checkbox-custom"></span>
+                <span>Surface Detection</span>
+              </label>
+            </div>
+            <div class="form-group">
+              <label class="checkbox-label">
+                <input type="checkbox" id="dish-anchor-table" checked>
+                <span class="checkbox-custom"></span>
+                <span>Anchor to Table</span>
+              </label>
+            </div>
+            <div class="form-group">
+              <label class="checkbox-label">
+                <input type="checkbox" id="dish-allow-scale" checked>
+                <span class="checkbox-custom"></span>
+                <span>Allow Scaling</span>
+              </label>
+            </div>
+            <div class="form-group">
+              <label class="checkbox-label">
+                <input type="checkbox" id="dish-allow-rotation" checked>
+                <span class="checkbox-custom"></span>
+                <span>Allow Rotation</span>
+              </label>
+            </div>
+          </div>
+        </fieldset>
+        
+        <!-- Nutrition Section -->
+        <fieldset class="form-section">
+          <legend>Nutritional Information</legend>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Calories</label>
+              <input type="number" class="input" id="dish-calories" min="0">
+            </div>
+            <div class="form-group">
+              <label>Protein (g)</label>
+              <input type="number" class="input" id="dish-protein" min="0" step="0.1">
+            </div>
+            <div class="form-group">
+              <label>Carbs (g)</label>
+              <input type="number" class="input" id="dish-carbs" min="0" step="0.1">
+            </div>
+            <div class="form-group">
+              <label>Fat (g)</label>
+              <input type="number" class="input" id="dish-fat" min="0" step="0.1">
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Allergens (comma separated)</label>
+              <input type="text" class="input" id="dish-allergens" placeholder="nuts, dairy, gluten">
+            </div>
+            <div class="form-group">
+              <label>Dietary Tags (comma separated)</label>
+              <input type="text" class="input" id="dish-dietary" placeholder="vegetarian, vegan, gluten-free">
+            </div>
+          </div>
+        </fieldset>
+        
+        <div class="form-row">
+          <div class="form-group">
+            <label>Display Order</label>
+            <input type="number" class="input" id="dish-display-order" value="0" min="0">
+          </div>
+          <div class="form-group">
+            <label class="checkbox-label">
+              <input type="checkbox" id="dish-featured">
+              <span class="checkbox-custom"></span>
+              <span>Featured</span>
+            </label>
+          </div>
+          <div class="form-group">
+            <label class="checkbox-label">
+              <input type="checkbox" id="dish-available" checked>
+              <span class="checkbox-custom"></span>
+              <span>Available</span>
+            </label>
+          </div>
+        </div>
+        
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-primary">Save Dish</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Model Upload Modal -->
+  <div class="modal hidden" id="model-upload-modal" role="dialog" aria-labelledby="model-upload-title" aria-modal="true">
+    <div class="modal-backdrop"></div>
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 id="model-upload-title">Upload 3D Model</h2>
+        <button class="modal-close" aria-label="Close"><i class="ti ti-x"></i></button>
+      </div>
+      <form class="modal-body" id="model-upload-form">
+        <div class="form-group">
+          <label>Model File *</label>
+          <input type="file" class="input" id="model-file" accept=".glb,.gltf" required>
+          <small class="form-hint">GLB or GLTF format, max 50MB</small>
+        </div>
+        <div class="form-group">
+          <label>Thumbnail</label>
+          <input type="file" class="input" id="model-thumbnail" accept="image/*">
+          <small class="form-hint">Optional preview image</small>
+        </div>
+        <div class="form-group">
+          <label>Associated Dish</label>
+          <select class="select" id="model-dish">
+            <option value="">Select a dish...</option>
+          </select>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-primary">Upload Model</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Toast Container -->
+  <div class="toast-container" id="toast-container"></div>
+
+  <!-- Scripts -->
+  <script type="module" src="/admin/main.js?v=20260731"></script>
+</body>
+</html>

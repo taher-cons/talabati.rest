@@ -1,0 +1,16 @@
+{
+  "name": "WebAR Menu",
+  "short_name": "WebAR Menu",
+  "description": "WebAR Restaurant Menu - View dishes in Augmented Reality",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#1a1a2e",
+  "theme_color": "#1a1a2e",
+  "icons": [
+    {
+      "src": "/android-chrome-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    }
+  ]
+}

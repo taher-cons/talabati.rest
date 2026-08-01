@@ -1,0 +1,1029 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="طلباتي - قوائم طعام بتقنية الواقع المعزز">
+  <title>طلباتي - قوائم طعام بتقنية الواقع المعزز</title>
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+  <link rel="apple-touch-icon" href="/android-chrome-192x192.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    :root {
+      --primary: #C5A059;
+      --primary-dark: #A37F3E;
+      --accent: #D4AF37;
+      --dark: #0F0F12;
+      --darker: #1A1A1F;
+      --light: #FAF8F5;
+      --white: #ffffff;
+      --gray: #A0A0A8;
+      --gradient: linear-gradient(135deg, #C5A059 0%, #A37F3E 100%);
+      --gradient-dark: linear-gradient(135deg, #0F0F12 0%, #1A1A1F 100%);
+      --gold: #D4AF37;
+      --cream: #FAF8F5;
+      --charcoal: #0F0F12;
+    }
+    
+    body {
+      font-family: 'Cairo', sans-serif;
+      background: var(--cream);
+      color: var(--dark);
+      line-height: 1.6;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    
+    /* Header */
+    header {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 1000;
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+      padding: 1rem 2rem;
+    }
+    
+    .header-content {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      text-decoration: none;
+      color: var(--dark);
+      font-weight: 800;
+      font-size: 1.5rem;
+    }
+    
+    .logo-icon {
+      width: 48px;
+      height: 48px;
+      background: var(--gradient);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 1.5rem;
+    }
+    
+    .nav-links {
+      display: flex;
+      gap: 2rem;
+      align-items: center;
+    }
+    
+    .nav-links a {
+      text-decoration: none;
+      color: var(--dark);
+      font-weight: 500;
+      transition: color 0.3s;
+      position: relative;
+    }
+    
+    .nav-links a::after {
+      content: '';
+      position: absolute;
+      bottom: -4px;
+      left: 0;
+      width: 0;
+      height: 2px;
+      background: var(--gradient);
+      transition: width 0.3s;
+    }
+    
+    .nav-links a:hover {
+      color: var(--primary);
+    }
+    
+    .nav-links a:hover::after {
+      width: 100%;
+    }
+    
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.875rem 1.75rem;
+      border-radius: 50px;
+      font-weight: 600;
+      font-size: 1rem;
+      text-decoration: none;
+      border: none;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+    
+    .btn-primary {
+      background: var(--gradient);
+      color: white;
+      box-shadow: 0 4px 15px rgba(197, 160, 89, 0.3);
+    }
+    
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 25px rgba(197, 160, 89, 0.4);
+    }
+    
+    .btn-outline {
+      background: transparent;
+      color: var(--primary);
+      border: 2px solid var(--primary);
+    }
+    
+    .btn-outline:hover {
+      background: var(--primary);
+      color: white;
+    }
+    
+    /* Hero Section */
+    .hero {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 8rem 2rem 4rem;
+      background: 
+        radial-gradient(ellipse at 25% 25%, rgba(197, 160, 89, 0.08) 0%, transparent 40%),
+        radial-gradient(ellipse at 75% 75%, rgba(212, 175, 55, 0.06) 0%, transparent 40%),
+        var(--cream);
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .hero::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23C5A059' fill-opacity='0.02'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+      opacity: 0.4;
+    }
+    
+    .hero-content {
+      max-width: 1200px;
+      width: 100%;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 4rem;
+      align-items: center;
+      position: relative;
+      z-index: 1;
+    }
+    
+    .hero-text h1 {
+      font-size: clamp(2.5rem, 6vw, 4rem);
+      font-weight: 800;
+      line-height: 1.2;
+      margin-bottom: 1.5rem;
+      background: var(--gradient);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    
+    .hero-text p {
+      font-size: 1.25rem;
+      color: var(--gray);
+      margin-bottom: 2rem;
+      max-width: 500px;
+    }
+    
+    .hero-buttons {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+    
+    .hero-visual {
+      position: relative;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    
+    .phone-mockup {
+      width: 320px;
+      height: 640px;
+      background: linear-gradient(180deg, #1A1A1F 0%, #0F0F12 100%);
+      border-radius: 40px;
+      padding: 12px;
+      box-shadow: 
+        0 30px 60px rgba(0, 0, 0, 0.4),
+        0 0 0 1px rgba(197, 160, 89, 0.15),
+        inset 0 1px 0 rgba(197, 160, 89, 0.1);
+      position: relative;
+      animation: float 6s ease-in-out infinite;
+    }
+    
+    @keyframes float {
+      0%, 100% { transform: translateY(0) rotate(-2deg); }
+      50% { transform: translateY(-20px) rotate(2deg); }
+    }
+    
+    .phone-screen {
+      width: 100%;
+      height: 100%;
+      background: var(--white);
+      border-radius: 28px;
+      overflow: hidden;
+      position: relative;
+    }
+    
+    .ar-preview {
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(135deg, #1A1A1F 0%, #0F0F12 100%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      box-shadow: inset 0 1px 20px rgba(197, 160, 89, 0.1);
+    }
+    
+    .ar-preview::before {
+      content: '';
+      position: absolute;
+      width: 120px;
+      height: 120px;
+      border: 3px dashed rgba(255, 255, 255, 0.5);
+      border-radius: 16px;
+      animation: pulse 2s ease-in-out infinite;
+    }
+    
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); opacity: 0.5; }
+      50% { transform: scale(1.1); opacity: 0.8; }
+    }
+    
+    .ar-icon {
+      width: 80px;
+      height: 80px;
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 1rem;
+      backdrop-filter: blur(10px);
+    }
+    
+    .ar-label {
+      color: white;
+      font-weight: 600;
+      font-size: 1.1rem;
+      text-align: center;
+      padding: 0 2rem;
+    }
+    
+    .camera-indicator {
+      position: absolute;
+      bottom: 2rem;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      gap: 0.5rem;
+      color: rgba(255, 255, 255, 0.7);
+      font-size: 0.9rem;
+    }
+    
+    .camera-dot {
+      width: 10px;
+      height: 10px;
+      background: var(--accent);
+      border-radius: 50%;
+      animation: blink 1s ease-in-out infinite;
+    }
+    
+    @keyframes blink {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.3; }
+    }
+    
+    /* Specialities Section */
+    .specialities {
+      padding: 6rem 2rem;
+      background: var(--cream);
+    }
+
+    .specialities-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 2.5rem;
+    }
+
+    .dish-card {
+      background: var(--white);
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+      transition: all 0.3s;
+      border: 1px solid rgba(197, 160, 89, 0.1);
+    }
+
+    .dish-card:hover {
+      transform: translateY(-12px);
+      box-shadow: 0 16px 40px rgba(197, 160, 89, 0.2);
+    }
+
+    .dish-image {
+      width: 100%;
+      height: 220px;
+      object-fit: cover;
+      display: block;
+    }
+
+    .dish-content {
+      padding: 2rem;
+    }
+
+    .dish-category {
+      display: inline-block;
+      padding: 0.5rem 1rem;
+      border-radius: 50px;
+      background: rgba(197, 160, 89, 0.1);
+      color: var(--primary);
+      font-size: 0.85rem;
+      font-weight: 600;
+      margin-bottom: 1rem;
+    }
+
+    .dish-name {
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: var(--dark);
+      margin-bottom: 0.5rem;
+    }
+
+    .dish-name-en {
+      font-size: 0.9rem;
+      color: var(--gray);
+      font-style: italic;
+      margin-bottom: 1rem;
+    }
+
+    .dish-description {
+      font-size: 0.95rem;
+      color: var(--gray);
+      line-height: 1.6;
+      margin-bottom: 1.5rem;
+    }
+
+    .dish-price {
+      font-size: 1.5rem;
+      font-weight: 800;
+      background: var(--gradient);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    /* Features Section */
+    .features {
+      padding: 6rem 2rem;
+      background: var(--light);
+    }
+    
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    
+    .section-header {
+      text-align: center;
+      margin-bottom: 4rem;
+    }
+    
+    .section-header h2 {
+      font-size: clamp(2rem, 4vw, 3rem);
+      font-weight: 800;
+      margin-bottom: 1rem;
+      color: var(--dark);
+    }
+    
+    .section-header p {
+      font-size: 1.25rem;
+      color: var(--gray);
+      max-width: 600px;
+      margin: 0 auto;
+    }
+    
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 2rem;
+    }
+    
+    .feature-card {
+      background: var(--white);
+      padding: 2.5rem;
+      border-radius: 20px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+      transition: all 0.3s;
+      border: 1px solid rgba(0, 0, 0, 0.05);
+    }
+    
+    .feature-card:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.12);
+    }
+    
+    .feature-icon {
+      width: 64px;
+      height: 64px;
+      background: var(--gradient);
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 1.75rem;
+      margin-bottom: 1.5rem;
+    }
+    
+    .feature-card h3 {
+      font-size: 1.5rem;
+      font-weight: 700;
+      margin-bottom: 1rem;
+      color: var(--dark);
+    }
+    
+    .feature-card p {
+      color: var(--gray);
+      line-height: 1.8;
+    }
+    
+    /* Stats Section */
+    .stats {
+      padding: 6rem 2rem;
+      background: var(--gradient-dark);
+    }
+    
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 2rem;
+      max-width: 1000px;
+      margin: 0 auto;
+      text-align: center;
+    }
+    
+    .stat-item h3 {
+      font-size: 3.5rem;
+      font-weight: 800;
+      background: var(--gradient);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 0.5rem;
+    }
+    
+    .stat-item p {
+      color: rgba(255, 255, 255, 0.8);
+      font-size: 1.1rem;
+    }
+    
+    /* CTA Section */
+    .cta {
+      padding: 6rem 2rem;
+      background: var(--white);
+    }
+    
+    .cta-card {
+      max-width: 800px;
+      margin: 0 auto;
+      background: var(--gradient);
+      border-radius: 24px;
+      padding: 4rem;
+      text-align: center;
+      color: white;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .cta-card::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      right: -50%;
+      width: 100%;
+      height: 100%;
+      background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
+    }
+    
+    .cta-card h2 {
+      font-size: clamp(2rem, 4vw, 3rem);
+      font-weight: 800;
+      margin-bottom: 1rem;
+      position: relative;
+      z-index: 1;
+    }
+    
+    .cta-card p {
+      font-size: 1.25rem;
+      opacity: 0.9;
+      margin-bottom: 2rem;
+      position: relative;
+      z-index: 1;
+      max-width: 500px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    
+    .cta-buttons {
+      display: flex;
+      gap: 1rem;
+      justify-content: center;
+      flex-wrap: wrap;
+      position: relative;
+      z-index: 1;
+    }
+    
+    .btn-white {
+      background: white;
+      color: var(--primary);
+    }
+    
+    .btn-white:hover {
+      background: var(--light);
+      transform: translateY(-2px);
+    }
+    
+    .btn-transparent {
+      background: transparent;
+      color: white;
+      border: 2px solid white;
+    }
+    
+    .btn-transparent:hover {
+      background: rgba(255, 255, 255, 0.1);
+    }
+    
+    /* Footer */
+    footer {
+      background: var(--dark);
+      color: white;
+      padding: 4rem 2rem 2rem;
+    }
+    
+    .footer-grid {
+      display: grid;
+      grid-template-columns: 2fr repeat(3, 1fr);
+      gap: 3rem;
+      max-width: 1200px;
+      margin: 0 auto 3rem;
+    }
+    
+    .footer-brand .logo {
+      color: white;
+    }
+    
+    .footer-brand p {
+      color: rgba(255, 255, 255, 0.6);
+      margin-top: 1rem;
+      max-width: 300px;
+    }
+    
+    .footer-links h4 {
+      font-weight: 700;
+      margin-bottom: 1.5rem;
+      font-size: 1.1rem;
+    }
+    
+    .footer-links ul {
+      list-style: none;
+    }
+    
+    .footer-links li {
+      margin-bottom: 0.75rem;
+    }
+    
+    .footer-links a {
+      color: rgba(255, 255, 255, 0.7);
+      text-decoration: none;
+      transition: color 0.3s;
+    }
+    
+    .footer-links a:hover {
+      color: white;
+    }
+    
+    .footer-bottom {
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+      padding-top: 2rem;
+      text-align: center;
+      color: rgba(255, 255, 255, 0.5);
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    
+    /* Responsive */
+    @media (max-width: 968px) {
+      .hero-content {
+        grid-template-columns: 1fr;
+        text-align: center;
+        gap: 3rem;
+      }
+      
+      .hero-text p {
+        margin-left: auto;
+        margin-right: auto;
+      }
+      
+      .hero-buttons {
+        justify-content: center;
+      }
+      
+      .footer-grid {
+        grid-template-columns: 1fr 1fr;
+        gap: 2rem;
+      }
+      
+      .footer-brand {
+        grid-column: span 2;
+      }
+    }
+    
+    @media (max-width: 640px) {
+      header {
+        padding: 1rem;
+      }
+      
+      .nav-links {
+        display: none;
+      }
+      
+      .hero {
+        padding: 6rem 1rem 3rem;
+      }
+      
+      .phone-mockup {
+        width: 280px;
+        height: 560px;
+      }
+      
+      .features {
+        padding: 4rem 1rem;
+      }
+      
+      .feature-card {
+        padding: 1.5rem;
+      }
+      
+      .cta-card {
+        padding: 2rem 1.5rem;
+      }
+      
+      .footer-grid {
+        grid-template-columns: 1fr;
+      }
+      
+      .footer-brand {
+        grid-column: span 1;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="header-content">
+      <a href="/" class="logo">
+        <div class="logo-icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+          </svg>
+        </div>
+        طلباتي
+      </a>
+      <nav class="nav-links">
+        <a href="/menu">قوائم الطعام</a>
+        <a href="/menu/firasse_food">تجربة ثلاثية الأبعاد</a>
+        <a href="/admin" class="btn btn-primary">لوحة التحكم</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <!-- Hero Section -->
+    <section class="hero">
+      <div class="hero-content">
+          <div class="hero-text">
+          <div style="display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.75rem 1.5rem; border-radius: 50px; border: 1px solid rgba(197, 160, 89, 0.3); background: rgba(197, 160, 89, 0.05); margin-bottom: 2rem; width: fit-content;">
+            <span style="font-size: 1rem;">✨</span>
+            <span style="font-size: 0.875rem; font-weight: 600; color: var(--primary); letter-spacing: 0.5px;">تجربة فاخرة لقطاع الضيافة</span>
+          </div>
+          <h1>Firasse Restaurant <br>تجربة طعام <span style="background: var(--gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">تفاعلية معاصرة</span></h1>
+          <p>استكشف قائمتنا الفاخرة من خلال تجربة ثلاثية الأبعاد تفاعلية. شاهد أطباقنا الشهية على طاولتك قبل الطلب، واستمتع برحلة طعام لا تُنسى.</p>
+          <div class="hero-buttons">
+            <a href="/menu" class="btn btn-primary">
+              🌟 تصفح القائمة الفاخرة
+            </a>
+            <a href="/menu/firasse_food" class="btn btn-outline">
+              📐 شاهد طبقاً بالأبعاد الثلاثة
+            </a>
+          </div>
+        </div>
+        <div class="hero-visual">
+          <div class="phone-mockup">
+            <div class="phone-screen">
+              <div class="ar-preview">
+                <div class="ar-icon">
+                  <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.5">
+                    <polygon points="23 7 16 12 23 17 23 7"/>
+                    <rect x="1" y="5" width="15" height="14" rx="2"/>
+                    <circle cx="12" cy="12" r="3"/>
+                  </svg>
+                </div>
+                <!-- This mock-up must describe what the product actually does.
+                     The old copy ("searching for a surface…") mirrored the
+                     broken /ar screen and set the wrong expectation. -->
+                <p class="ar-label">اعرض الطبق بالأبعاد الثلاثة<br>ودوّره بإصبعك قبل الطلب</p>
+                <div class="camera-indicator">
+                  <span class="camera-dot"></span>
+                  <span>يعمل من المتصفح مباشرة</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Our Specialities Section -->
+    <section class="specialities">
+      <div class="container">
+        <div class="section-header">
+          <h2>Our Specialities</h2>
+          <p>Discover our chef's recommended dishes</p>
+        </div>
+        <div class="specialities-grid">
+          <!-- Dish 1: Calamari -->
+          <article class="dish-card">
+            <img src="/firasse_resto/c1.png" alt="Calamari Farcis" class="dish-image">
+            <div class="dish-content">
+              <span class="dish-category">المقبلات البحرية</span>
+              <h3 class="dish-name">حبار محشو مشوي</h3>
+              <p class="dish-name-en">Mediterranean Stuffed Calamari</p>
+              <p class="dish-description">حبار طازج محشو بأرز الأعشاب المعطرة، مشوي على الفحم، يقدم مع سلطة الطماطم الكرزية المحمصة.</p>
+              <div class="dish-price">1,800 د.ج</div>
+            </div>
+          </article>
+
+          <!-- Dish 2: Pizza Napoli -->
+          <article class="dish-card">
+            <img src="/firasse_resto/c2.webp" alt="Pizza Napoletana" class="dish-image">
+            <div class="dish-content">
+              <span class="dish-category">البيتزا الإيطالية</span>
+              <h3 class="dish-name">بيتزا نابولي الفاخرة</h3>
+              <p class="dish-name-en">Pizza Napoletana Tradizionale</p>
+              <p class="dish-description">عجينة نابوليتانية هشة ومختمرة، صلصة طماطم إيطالية، جبن موزاريلا فاخر، أنشوفة وكبار.</p>
+              <div class="dish-price">1,200 د.ج</div>
+            </div>
+          </article>
+
+          <!-- Dish 3: Pepperoni Pizza -->
+          <article class="dish-card">
+            <img src="/firasse_resto/c3.webp" alt="Pepperoni Pizza" class="dish-image">
+            <div class="dish-content">
+              <span class="dish-category">البيتزا المفضلة</span>
+              <h3 class="dish-name">بيتزا البيبروني الفاخرة</h3>
+              <p class="dish-name-en">Ultimate Cheese & Pepperoni Pizza</p>
+              <p class="dish-description">عجينة إيطالية محمرة بحواف مقرمشة، جبنة موزاريلا مذابة، بيبروني بقري مقرمش وأعشاب برية.</p>
+              <div class="dish-price">1,400 د.ج</div>
+            </div>
+          </article>
+
+          <!-- Dish 4: Chicken Croquette -->
+          <article class="dish-card">
+            <img src="/firasse_resto/c4.webp" alt="Chicken Croquette" class="dish-image">
+            <div class="dish-content">
+              <span class="dish-category">المقبلات المقرمشة</span>
+              <h3 class="dish-name">كروكيت الدجاج بالجبن</h3>
+              <p class="dish-name-en">Cheesy Crispy Chicken Croquette</p>
+              <p class="dish-description">قطعة دجاج مقرمشة وذهبية محشوة بقلب غني من الجبن الذائب، تقدم على فراش من الخس والطماطم.</p>
+              <div class="dish-price">900 د.ج</div>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="features">
+      <div class="container">
+        <div class="section-header">
+          <h2>لماذا طلباتي؟</h2>
+          <p>منصة متكاملة لتحويل تجربة الطعام في مطعمك باستخدام أحدث تقنيات الواقع المعزز</p>
+        </div>
+        <div class="features-grid">
+          <article class="feature-card">
+            <div class="feature-icon">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polygon points="23 7 16 12 23 17 23 7"/>
+                <rect x="1" y="5" width="15" height="14" rx="2"/>
+              </svg>
+            </div>
+            <h3>واقع معزز بدون تطبيقات</h3>
+            <p>يعمل مباشرة من المتصفح (WebXR) دون الحاجة لتحميل أي تطبيق. يعمل على iOS Safari و Android Chrome.</p>
+          </article>
+          
+          <article class="feature-card">
+            <div class="feature-icon">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+              </svg>
+            </div>
+            <h3>نماذج طعام واقعية</h3>
+            <p>دعم نماذج GLB/GLTF مع PBR materials، إضاءة واقعية، وظلال ديناميكية لتعكس شكل الطبق الحقيقي.</p>
+          </article>
+          
+          <article class="feature-card">
+            <div class="feature-icon">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="2" y="3" width="20" height="14" rx="2"/>
+                <path d="M8 21h8M12 17v4"/>
+              </svg>
+            </div>
+            <h3>علامات مخصصة (Markers)</h3>
+            <p>دعم Hiro marker والعلامات المخصصة. اطبع العلامة وضعها على الطاولة لتثبيت النموذج بدقة.</p>
+          </article>
+          
+          <article class="feature-card">
+            <div class="feature-icon">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                <circle cx="9" cy="7" r="4"/>
+                <path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/>
+              </svg>
+            </div>
+            <h3>إدارة سهلة للمطاعم</h3>
+            <p>لوحة تحكم عربية كاملة لإضافة القوائم، الأطباق، رفع النماذج ثلاثية الأبعاد، وتوليد رموز QR.</p>
+          </article>
+          
+          <article class="feature-card">
+            <div class="feature-icon">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"/>
+                <line x1="2" y1="12" x2="22" y2="12"/>
+                <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+              </svg>
+            </div>
+            <h3>تحليلات وتتبع</h3>
+            <p>إحصائيات تفصيلية: مشاهدات القائمة، تفاعلات AR، الأطباق الأكثر شعبية، ومعدلات التحويل.</p>
+          </article>
+          
+          <article class="feature-card">
+            <div class="feature-icon">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="1" y="4" width="22" height="16" rx="2"/>
+                <line x1="1" y1="10" x2="23" y2="10"/>
+                <line x1="12" y1="4" x2="12" y2="20"/>
+              </svg>
+            </div>
+            <h3>دعم RTL والعربية</h3>
+            <p>واجهة مصممة خصيصاً للغة العربية مع دعم كامل للاتجاه من اليمين لليسار وخط Cairo المحسن.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- Stats Section -->
+    <section class="stats">
+      <div class="stats-grid">
+        <div class="stat-item">
+          <h3>500+</h3>
+          <p>نموذج طعام ثلاثي الأبعاد</p>
+        </div>
+        <div class="stat-item">
+          <h3>50+</h3>
+          <p>مطعم نشط</p>
+        </div>
+        <div class="stat-item">
+          <h3>95%</h3>
+          <p>معدل نجاح جلسة AR</p>
+        </div>
+        <div class="stat-item">
+          <h3>3x</h3>
+          <p>زيادة في المبيعات</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="cta">
+      <div class="container">
+        <div class="cta-card">
+          <h2>هل أنت مستعد لتحويل مطعمك؟</h2>
+          <p>انضم لعشرات المطاعم التي زادت مبيعاتها وعززت تجربة عملائها مع قوائم الطعام بالواقع المعزز.</p>
+          <div class="cta-buttons">
+            <a href="/admin" class="btn btn-white">
+              🚀 ابدأ رحلتك الآن
+            </a>
+            <a href="/menu" class="btn btn-transparent">
+              ✨ شاهد مثال حي
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <a href="/" class="logo">
+          <div class="logo-icon">
+            <img src="/favicon-32x32.png" alt="Firasse Logo" style="width: 32px; height: 32px;">
+          </div>
+          Firasse Restaurant
+        </a>
+        <p>تجربة فاخرة لقطاع الضيافة. قائمة طعام تفاعلية بتقنية الواقع المعزز، حيث يستطيع ضيوفك استكشاف أطباقنا الشهية على طاولتهم قبل الطلب.</p>
+      </div>
+      
+      <div class="footer-links">
+        <h4>القائمة</h4>
+        <ul>
+          <li><a href="/menu">عرض القائمة الكاملة</a></li>
+          <li><a href="/menu/firasse_food">تجربة ثلاثية الأبعاد</a></li>
+          <li><a href="#">الأطباق الخاصة</a></li>
+          <li><a href="#">التحفظات</a></li>
+        </ul>
+      </div>
+      
+      <div class="footer-links">
+        <h4>تواصل معنا</h4>
+        <ul>
+          <li><a href="tel:+213500000000">Call Us</a></li>
+          <li><a href="mailto:info@firasse.rest">Email</a></li>
+          <li><a href="#">موقعنا</a></li>
+          <li><a href="#">ساعات العمل</a></li>
+        </ul>
+      </div>
+      
+      <div class="footer-links">
+        <h4>حول المطعم</h4>
+        <ul>
+          <li><a href="#">عن فيراسة</a></li>
+          <li><a href="#">فريق الطهو</a></li>
+          <li><a href="#">الشهادات</a></li>
+          <li><a href="#">معرض الصور</a></li>
+        </ul>
+      </div>
+    </div>
+    
+    <div class="footer-bottom">
+      <p>&copy; 2024 Firasse Restaurant. جميع الحقوق محفوظة. | 123 Culinary Street, Food City</p>
+    </div>
+  </footer>
+
+  <script>
+    // Smooth scroll for anchor links
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+      anchor.addEventListener('click', function(e) {
+        e.preventDefault();
+        document.querySelector(this.getAttribute('href')).scrollIntoView({
+          behavior: 'smooth'
+        });
+      });
+    });
+    
+    // Add scroll effect to header
+    let lastScroll = 0;
+    window.addEventListener('scroll', () => {
+      const header = document.querySelector('header');
+      const currentScroll = window.pageYOffset;
+      
+      if (currentScroll > 100) {
+        header.style.boxShadow = '0 4px 20px rgba(0, 0, 0, 0.1)';
+      } else {
+        header.style.boxShadow = 'none';
+      }
+      
+      lastScroll = currentScroll;
+    });
+  </script>
+</body>
+</html>

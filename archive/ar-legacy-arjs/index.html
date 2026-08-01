@@ -1,0 +1,438 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="description" content="WebAR Restaurant Menu - View dishes in Augmented Reality">
+  <meta name="theme-color" content="#1a1a2e">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="WebAR Menu">
+  <title>WebAR Menu - Augmented Reality Dining</title>
+  
+  <!-- Styles -->
+  <link rel="stylesheet" href="/ar/styles.css?v=20260731b">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap">
+  
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+  
+  <!-- PWA -->
+  <link rel="manifest" href="/ar/manifest.json">
+  <link rel="apple-touch-icon" href="/android-chrome-192x192.png">
+
+  <!--
+    A-Frame + AR.js MUST be loaded in <head> BEFORE the <a-scene> markup so that all
+    components/systems (renderer, shadow, ar-hit-test...) are registered before the
+    scene is parsed. Loading them at the end of <body> caused these production errors:
+      - "Put the A-Frame <script> tag in the <head> ... before the scene"
+      - "Cannot set properties of undefined (setting 'useLegacyLights')"
+      - "Cannot read properties of undefined (reading 'registerComponent')"
+      - "Cannot read properties of undefined (reading 'setShadowMapEnabled')"
+    A-Frame also bundles its own three.js (exposed as window.THREE), so /ar/main.js
+    must NOT import a second copy of three from a CDN.
+  -->
+  <script src="https://cdn.jsdelivr.net/npm/aframe@1.5.0/dist/aframe-master.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@ar-js-org/ar.js@3.4.5/aframe/build/aframe-ar.js"></script>
+</head>
+<body>
+  <!-- Loading Screen -->
+  <div id="loading-screen" class="loading-screen" role="status" aria-live="polite">
+    <div class="loading-content">
+      <div class="loading-logo">
+        <svg viewBox="0 0 100 100" class="loading-spinner">
+          <circle cx="50" cy="50" r="40" stroke="currentColor" stroke-width="4" fill="none" stroke-dasharray="150,100" stroke-linecap="round">
+            <animateTransform attributeName="transform" type="rotate" from="0 50 50" to="360 50 50" dur="1.5s" repeatCount="indefinite"/>
+          </circle>
+        </svg>
+      </div>
+      <h1 class="loading-title">WebAR Menu</h1>
+      <p class="loading-subtitle">Preparing your AR dining experience...</p>
+      <div class="loading-progress">
+        <div class="loading-bar" id="loading-bar"></div>
+      </div>
+      <p class="loading-percent" id="loading-percent">0%</p>
+    </div>
+  </div>
+
+  <!-- AR Scene Container -->
+  <div id="ar-scene" class="ar-scene" hidden>
+    <!-- A-Frame Scene -->
+    <a-scene 
+      id="ar-scene-element"
+      vr-mode-ui="enabled: false"
+      arjs="sourceType: webcam; sourceWidth: 1280; sourceHeight: 720; displayWidth: 1280; displayHeight: 720; debugUIEnabled: false; trackingMethod: best;"
+      renderer="alpha: true; antialias: true; logarithmicDepthBuffer: true; colorManagement: true; toneMapping: ACESFilmic; exposure: 1.0;"
+      webxr="optionalFeatures: hit-test, dom-overlay;"
+      ar-hit-test="target: #food-model;"
+      shadow="type: pcfsoft;"
+      embedded
+      style="width: 100%; height: 100%;"
+    >
+      <!-- Camera -->
+      <a-camera id="ar-camera" position="0 1.6 0" look-controls="enabled: false"></a-camera>
+      
+      <!-- Lighting -->
+      <a-light id="ambient-light" type="ambient" intensity="0.6" color="#ffffff"></a-light>
+      <a-light id="directional-light" type="directional" intensity="1.0" position="5 10 7" color="#fff" cast-shadow="true"></a-light>
+      <a-light id="hemisphere-light" type="hemisphere" intensity="0.6" sky-color="#87ceeb" ground-color="#8fbc8f"></a-light>
+      
+      <!-- Table Anchor (Surface detection) -->
+      <!-- NOTE: `ar-hit-test` is a SCENE-level A-Frame component and is declared on
+           <a-scene> above. Declaring it on this entity threw:
+           "ar-hit-test.js: Cannot read properties of null (reading 'optionalFeatures')" -->
+      <a-entity id="table-anchor" visible="false"></a-entity>
+      
+      <!-- Food Model Container -->
+      <a-entity id="food-model" 
+                visible="false"
+                scale="0.01 0.01 0.01"
+                shadow="cast: true; receive: false">
+      </a-entity>
+      
+      <!-- Table Surface Visualization -->
+      <a-ring id="table-ring" 
+              radius-inner="0.3" 
+              radius-outer="0.4" 
+              color="#e94560" 
+              opacity="0.3"
+              rotation="-90 0 0"
+              visible="false"
+              animation__pulse="property: scale; from: 1 1 1; to: 1.2 1.2 1.2; dur: 1500; easing: easeInOutQuad; loop: true; dir: alternate">
+      </a-ring>
+      
+      <!-- AR Hit Test Target -->
+      <a-plane id="hit-plane" 
+               width="10" 
+               height="10" 
+               rotation="-90 0 0" 
+               visible="false"
+               shadow="receive: true">
+      </a-plane>
+      
+      <!-- Marker-based AR (Hiro marker fallback) -->
+      <a-marker id="hiro-marker" preset="hiro" visible="false">
+        <a-entity id="marker-food-model" visible="false" scale="0.5 0.5 0.5"></a-entity>
+      </a-marker>
+      
+      <!-- Custom Image Marker -->
+      <a-marker id="custom-marker" type="pattern" url="" visible="false">
+        <a-entity id="pattern-food-model" visible="false" scale="0.5 0.5 0.5"></a-entity>
+      </a-marker>
+    </a-scene>
+
+    <!-- UI Overlay -->
+    <div id="ui-overlay" class="ui-overlay">
+      <!-- Top Bar -->
+      <header class="top-bar">
+        <div class="restaurant-info">
+          <img id="restaurant-logo" src="" alt="Restaurant Logo" class="restaurant-logo">
+          <div class="restaurant-details">
+            <h1 id="restaurant-name" class="restaurant-name">Restaurant</h1>
+            <p id="restaurant-tagline" class="restaurant-tagline">AR Menu Experience</p>
+          </div>
+        </div>
+        <div class="top-actions">
+          <button id="menu-toggle" class="icon-btn" aria-label="View Menu" title="View Full Menu">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M3 12h18M3 6h18M3 18h18"/>
+            </svg>
+          </button>
+          <button id="settings-toggle" class="icon-btn" aria-label="Settings" title="Settings">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="3"/>
+              <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+            </svg>
+          </button>
+        </div>
+      </header>
+
+      <!-- AR Instructions -->
+      <div id="ar-instructions" class="ar-instructions">
+        <div class="instruction-card" id="instruction-surface">
+          <div class="instruction-icon surface-icon"></div>
+          <p class="instruction-text">Point camera at a flat surface (table)</p>
+          <div class="instruction-animation surface-animation"></div>
+        </div>
+        <div class="instruction-card" id="instruction-tap">
+          <div class="instruction-icon tap-icon"></div>
+          <p class="instruction-text">Tap to place dish</p>
+          <div class="instruction-animation tap-animation"></div>
+        </div>
+        <div class="instruction-card" id="instruction-gesture">
+          <div class="instruction-icon gesture-icon"></div>
+          <p class="instruction-text">Pinch to scale, drag to rotate</p>
+          <div class="instruction-animation gesture-animation"></div>
+        </div>
+      </div>
+
+      <!-- Dish Info Panel -->
+      <div id="dish-info-panel" class="dish-info-panel hidden">
+        <div class="dish-header">
+          <img id="dish-thumbnail" src="" alt="" class="dish-thumbnail">
+          <div class="dish-details">
+            <h2 id="dish-name" class="dish-name">Dish Name</h2>
+            <p id="dish-description" class="dish-description">Description</p>
+            <div class="dish-meta">
+              <span id="dish-price" class="dish-price">$0.00</span>
+              <span id="dish-category" class="dish-category">Main Course</span>
+            </div>
+          </div>
+        </div>
+        <div class="dish-actions">
+          <button id="btn-view-details" class="btn btn-primary">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="10"/>
+              <path d="M12 16v-4M12 8h.01"/>
+            </svg>
+            View Details
+          </button>
+          <button id="btn-add-to-order" class="btn btn-accent">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/>
+              <line x1="3" y1="6" x2="21" y2="6"/>
+              <path d="M16 10a4 4 0 0 1-8 0"/>
+            </svg>
+            Add to Order
+          </button>
+        </div>
+        <div class="dish-nutrition" id="dish-nutrition" hidden>
+          <h3>Nutrition</h3>
+          <div class="nutrition-grid">
+            <div class="nutrition-item">
+              <span class="nutrition-value" id="nut-calories">0</span>
+              <span class="nutrition-label">Calories</span>
+            </div>
+            <div class="nutrition-item">
+              <span class="nutrition-value" id="nut-protein">0g</span>
+              <span class="nutrition-label">Protein</span>
+            </div>
+            <div class="nutrition-item">
+              <span class="nutrition-value" id="nut-carbs">0g</span>
+              <span class="nutrition-label">Carbs</span>
+            </div>
+            <div class="nutrition-item">
+              <span class="nutrition-value" id="nut-fat">0g</span>
+              <span class="nutrition-label">Fat</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Category Selector -->
+      <div id="category-selector" class="category-selector hidden">
+        <div class="category-scroll" id="category-scroll"></div>
+      </div>
+
+      <!-- Bottom Controls -->
+      <div id="bottom-controls" class="bottom-controls">
+        <button id="btn-reset-ar" class="control-btn" aria-label="Reset AR" title="Reset Position">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/>
+            <path d="M3 3v5h5"/>
+          </svg>
+        </button>
+        <button id="btn-switch-camera" class="control-btn" aria-label="Switch Camera" title="Switch Camera">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+            <path d="M15 5l-5 5 5 5"/>
+          </svg>
+        </button>
+        <button id="btn-capture" class="control-btn capture-btn" aria-label="Capture Photo" title="Take Photo">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"/>
+            <circle cx="12" cy="12" r="6"/>
+            <circle cx="12" cy="12" r="2" fill="currentColor"/>
+          </svg>
+        </button>
+        <button id="btn-toggle-marker" class="control-btn" aria-label="Switch to Marker AR" title="Use Marker">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="3" y="3" width="18" height="18" rx="2"/>
+            <path d="M9 3v18M15 3v18M3 9h18M3 15h18"/>
+          </svg>
+        </button>
+        <button id="btn-help" class="control-btn" aria-label="Help" title="Help">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"/>
+            <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
+            <path d="M12 17h.01"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- Side Menu Panel -->
+    <aside id="side-menu" class="side-menu" aria-label="Menu Categories">
+      <div class="side-menu-header">
+        <h2>Our Menu</h2>
+        <button id="close-menu" class="close-btn" aria-label="Close Menu">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="18" y1="6" x2="6" y2="18"/>
+            <line x1="6" y1="6" x2="18" y2="18"/>
+          </svg>
+        </button>
+      </div>
+      <div class="side-menu-search">
+        <input type="text" id="menu-search" placeholder="Search dishes..." aria-label="Search dishes">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="11" cy="11" r="8"/>
+          <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+        </svg>
+      </div>
+      <div class="category-tabs" id="category-tabs" role="tablist"></div>
+      <div class="dishes-list" id="dishes-list" role="tabpanel"></div>
+    </aside>
+
+    <!-- Settings Panel -->
+    <aside id="settings-panel" class="settings-panel" aria-label="Settings">
+      <div class="settings-header">
+        <h2>Settings</h2>
+        <button id="close-settings" class="close-btn" aria-label="Close Settings">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="18" y1="6" x2="6" y2="18"/>
+            <line x1="6" y1="6" x2="18" y2="18"/>
+          </svg>
+        </button>
+      </div>
+      <div class="settings-content">
+        <section class="setting-section">
+          <h3>AR Mode</h3>
+          <div class="setting-options">
+            <label class="radio-option">
+              <input type="radio" name="ar-mode" value="surface" checked>
+              <span class="radio-custom"></span>
+              <span>Surface Detection (Markerless)</span>
+            </label>
+            <label class="radio-option">
+              <input type="radio" name="ar-mode" value="marker">
+              <span class="radio-custom"></span>
+              <span>Image Marker (QR Code)</span>
+            </label>
+            <label class="radio-option">
+              <input type="radio" name="ar-mode" value="both">
+              <span class="radio-custom"></span>
+              <span>Both Modes</span>
+            </label>
+          </div>
+        </section>
+        <section class="setting-section">
+          <h3>Display</h3>
+          <label class="toggle-option">
+            <input type="checkbox" id="setting-shadows" checked>
+            <span class="toggle-custom"></span>
+            <span>Shadows</span>
+          </label>
+          <label class="toggle-option">
+            <input type="checkbox" id="setting-auto-rotate" checked>
+            <span class="toggle-custom"></span>
+            <span>Auto Rotate</span>
+          </label>
+          <label class="toggle-option">
+            <input type="checkbox" id="setting-show-nutrition">
+            <span class="toggle-custom"></span>
+            <span>Show Nutrition Info</span>
+          </label>
+        </section>
+        <section class="setting-section">
+          <h3>Language</h3>
+          <select id="setting-language" class="setting-select">
+            <option value="en">English</option>
+            <option value="ar">العربية</option>
+            <option value="fr">Français</option>
+            <option value="es">Español</option>
+          </select>
+        </section>
+      </div>
+    </aside>
+
+    <!-- Help Modal -->
+    <div id="help-modal" class="modal hidden" role="dialog" aria-labelledby="help-title" aria-modal="true">
+      <div class="modal-backdrop"></div>
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2 id="help-title">AR Menu Help</h2>
+          <button class="modal-close" aria-label="Close Help">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="18" y1="6" x2="6" y2="18"/>
+              <line x1="6" y1="6" x2="18" y2="18"/>
+            </svg>
+          </button>
+        </div>
+        <div class="modal-body">
+          <div class="help-steps">
+            <div class="help-step">
+              <span class="step-number">1</span>
+              <div class="step-content">
+                <h3>Find a Flat Surface</h3>
+                <p>Point your camera at a table or flat surface. Move slowly until you see the ring indicator.</p>
+              </div>
+            </div>
+            <div class="help-step">
+              <span class="step-number">2</span>
+              <div class="step-content">
+                <h3>Tap to Place</h3>
+                <p>Tap on the ring to place your selected dish on the table.</p>
+              </div>
+            </div>
+            <div class="help-step">
+              <span class="step-number">3</span>
+              <div class="step-content">
+                <h3>Interact</h3>
+                <p>Pinch to zoom, drag to rotate, tap dish for details.</p>
+              </div>
+            </div>
+            <div class="help-step">
+              <span class="step-number">4</span>
+              <div class="step-content">
+                <h3>Order</h3>
+                <p>Tap "Add to Order" to save your selection.</p>
+              </div>
+            </div>
+          </div>
+          <div class="help-gestures">
+            <h3>Gestures</h3>
+            <div class="gesture-list">
+              <div class="gesture-item">
+                <div class="gesture-icon pinch-icon"></div>
+                <span>Pinch to Scale</span>
+              </div>
+              <div class="gesture-item">
+                <div class="gesture-icon drag-icon"></div>
+                <span>Drag to Rotate</span>
+              </div>
+              <div class="gesture-item">
+                <div class="gesture-icon tap-icon"></div>
+                <span>Tap for Info</span>
+              </div>
+              <div class="gesture-item">
+                <div class="gesture-icon two-finger-icon"></div>
+                <span>Two Finger Rotate</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Capture Preview -->
+    <div id="capture-preview" class="capture-preview hidden">
+      <div class="capture-content">
+        <img id="captured-image" src="" alt="Captured AR photo">
+        <div class="capture-actions">
+          <button id="btn-retake" class="btn btn-secondary">Retake</button>
+          <button id="btn-save-photo" class="btn btn-primary">Save Photo</button>
+          <button id="btn-share-photo" class="btn btn-accent">Share</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Order Summary Toast -->
+    <div id="toast-container" class="toast-container" aria-live="polite"></div>
+  </div>
+
+  <!-- Main AR Module (module scripts are deferred, so window.THREE from A-Frame is ready) -->
+  <script type="module" src="/ar/main.js?v=20260731b"></script>
+</body>
+</html>

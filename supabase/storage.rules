@@ -1,0 +1,139 @@
+# Supabase Storage Rules for WebAR Menu
+# Configure in Supabase Dashboard > Storage > Policies
+
+# ============================================
+# BUCKETS
+# ============================================
+
+-- Create buckets (run in SQL Editor)
+-- INSERT INTO storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
+-- VALUES 
+--   ('models', 'models', true, 52428800, ARRAY['model/gltf-binary', 'model/gltf+json', 'application/octet-stream']),
+--   ('thumbnails', 'thumbnails', true, 5242880, ARRAY['image/jpeg', 'image/png', 'image/webp']),
+--   ('markers', 'markers', true, 5242880, ARRAY['image/jpeg', 'image/png', 'image/webp']),
+--   ('logos', 'logos', true, 5242880, ARRAY['image/jpeg', 'image/png', 'image/webp', 'image/svg+xml']);
+
+# ============================================
+# POLICIES FOR 'models' BUCKET (3D Models - GLB/GLTF)
+# ============================================
+
+-- Public read access for all models
+CREATE POLICY "Public read models" ON storage.objects
+    FOR SELECT USING (bucket_id = 'models');
+
+-- Authenticated users can upload models
+CREATE POLICY "Authenticated upload models" ON storage.objects
+    FOR INSERT WITH CHECK (
+        bucket_id = 'models' 
+        AND auth.role() = 'authenticated'
+        AND (storage.foldername(name))[1] = auth.uid()::text
+    );
+
+-- Users can update their own models
+CREATE POLICY "Owner update models" ON storage.objects
+    FOR UPDATE USING (
+        bucket_id = 'models' 
+        AND auth.uid()::text = (storage.foldername(name))[1]
+    );
+
+-- Users can delete their own models
+CREATE POLICY "Owner delete models" ON storage.objects
+    FOR DELETE USING (
+        bucket_id = 'models' 
+        AND auth.uid()::text = (storage.foldername(name))[1]
+    );
+
+-- Admin full access
+CREATE POLICY "Admin full access models" ON storage.objects
+    FOR ALL USING (
+        bucket_id = 'models' 
+        AND auth.jwt() ->> 'role' = 'admin'
+    );
+
+# ============================================
+# POLICIES FOR 'thumbnails' BUCKET
+# ============================================
+
+CREATE POLICY "Public read thumbnails" ON storage.objects
+    FOR SELECT USING (bucket_id = 'thumbnails');
+
+CREATE POLICY "Authenticated upload thumbnails" ON storage.objects
+    FOR INSERT WITH CHECK (
+        bucket_id = 'thumbnails' 
+        AND auth.role() = 'authenticated'
+    );
+
+CREATE POLICY "Admin full access thumbnails" ON storage.objects
+    FOR ALL USING (
+        bucket_id = 'thumbnails' 
+        AND auth.jwt() ->> 'role' = 'admin'
+    );
+
+# ============================================
+# POLICIES FOR 'markers' BUCKET (AR Image Markers)
+# ============================================
+
+CREATE POLICY "Public read markers" ON storage.objects
+    FOR SELECT USING (bucket_id = 'markers');
+
+CREATE POLICY "Authenticated upload markers" ON storage.objects
+    FOR INSERT WITH CHECK (
+        bucket_id = 'markers' 
+        AND auth.role() = 'authenticated'
+    );
+
+CREATE POLICY "Admin full access markers" ON storage.objects
+    FOR ALL USING (
+        bucket_id = 'markers' 
+        AND auth.jwt() ->> 'role' = 'admin'
+    );
+
+# ============================================
+# POLICIES FOR 'logos' BUCKET (Restaurant Logos)
+# ============================================
+
+CREATE POLICY "Public read logos" ON storage.objects
+    FOR SELECT USING (bucket_id = 'logos');
+
+CREATE POLICY "Authenticated upload logos" ON storage.objects
+    FOR INSERT WITH CHECK (
+        bucket_id = 'logos' 
+        AND auth.role() = 'authenticated'
+    );
+
+CREATE POLICY "Admin full access logos" ON storage.objects
+    FOR ALL USING (
+        bucket_id = 'logos' 
+        AND auth.jwt() ->> 'role' = 'admin'
+    );
+
+# ============================================
+# HELPER FUNCTIONS
+# ============================================
+
+-- Function to get public URL for a file
+-- Usage: SELECT get_public_url('models', 'user-id/model.glb');
+CREATE OR REPLACE FUNCTION get_public_url(bucket TEXT, path TEXT)
+RETURNS TEXT AS $$
+DECLARE
+    result TEXT;
+BEGIN
+    SELECT public_url INTO result
+    FROM storage.objects
+    WHERE bucket_id = bucket AND name = path;
+    RETURN result;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+-- Function to generate signed URL for private files (if needed)
+-- Usage: SELECT create_signed_url('models', 'user-id/model.glb', 3600);
+CREATE OR REPLACE FUNCTION create_signed_url(bucket TEXT, path TEXT, expires_in INTEGER DEFAULT 3600)
+RETURNS TEXT AS $$
+DECLARE
+    result TEXT;
+BEGIN
+    SELECT signed_url INTO result
+    FROM storage.create_signed_url(bucket, path, expires_in);
+    RETURN result;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;

@@ -1,0 +1,13 @@
+﻿{
+  "projects": {
+    "default": "talabati-946bb",
+    "production": "talabati-946bb"
+  },
+  "targets": {
+    "talabati-946bb": {
+      "hosting": {
+        "web": ["web-ar-menu"]
+      }
+    }
+  }
+}

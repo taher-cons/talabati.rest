@@ -1,0 +1,62 @@
+# ============================================================
+# SECRETS — never commit
+# ============================================================
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+service-account*.json
+firebase-adminsdk*.json
+.firebase/
+.runtimeconfig.json
+
+# Database backups may contain customer data
+backups/
+
+# ============================================================
+# Dependencies / build output
+# ============================================================
+node_modules/
+functions/node_modules/
+functions/lib/
+dist/
+build/
+.vite/
+
+# ============================================================
+# Logs & caches
+# ============================================================
+*.log
+npm-debug.log*
+yarn-error.log*
+firebase-debug.log*
+firestore-debug.log*
+ui-debug.log*
+.cache/
+coverage/
+.nyc_output/
+
+# ============================================================
+# Supabase local
+# ============================================================
+supabase/.temp/
+supabase/.branches/
+
+# ============================================================
+# OS / editor
+# ============================================================
+.DS_Store
+Thumbs.db
+.idea/
+*.swp
+.vscode/settings.json
+
+# ============================================================
+# Ad-hoc debugging scratch files (not part of the app)
+# ============================================================
+obs_*.txt
+check_model.js
+list_dishes.js
+glb-image-*.jpg
+texture-0.jpg

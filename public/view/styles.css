@@ -1,0 +1,305 @@
+/**
+ * 3D dish viewer — mobile-first.
+ * Kept deliberately small and self-contained: this page is the one a paying
+ * customer reaches from the QR code, so it must render fast on a phone network
+ * and never depend on anything that could leave the screen blank.
+ */
+
+:root {
+  --bg: #0f0f1a;
+  --surface: #1a1a2e;
+  --border: #2d2d4a;
+  --text: #ffffff;
+  --text-dim: #b8b8d0;
+  --accent: #e94560;
+  --accent-hover: #d63650;
+  --radius: 14px;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  height: 100%;
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Segoe UI', Tahoma, system-ui, -apple-system, sans-serif;
+  overscroll-behavior: none;
+}
+
+body {
+  display: flex;
+  flex-direction: column;
+}
+
+svg { display: block; }
+
+/* ---------- top bar ---------- */
+.bar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  background: rgba(15, 15, 26, 0.92);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+
+.back {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--text);
+  text-decoration: none;
+  font-size: 0.9375rem;
+  padding: 8px 12px 8px 8px;
+  border-radius: 999px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  /* 44px minimum touch target */
+  min-height: 44px;
+}
+
+.back svg { width: 18px; height: 18px; }
+[dir="rtl"] .back svg { transform: scaleX(-1); }
+
+.bar-title {
+  font-size: 0.9375rem;
+  color: var(--text-dim);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ---------- 3D stage ---------- */
+.stage {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  background:
+    radial-gradient(ellipse at 50% 65%, rgba(233, 69, 96, 0.16), transparent 60%),
+    var(--bg);
+}
+
+model-viewer {
+  width: 100%;
+  height: 100%;
+  background: transparent;
+  --poster-color: transparent;
+}
+
+model-viewer[hidden] { display: none; }
+
+/* AR entry button — model-viewer removes it on devices without AR support. */
+.ar-btn {
+  position: absolute;
+  bottom: 18px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  padding: 14px 22px;
+  min-height: 48px;
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  border-radius: 999px;
+  font-family: inherit;
+  font-size: 0.9375rem;
+  font-weight: 700;
+  box-shadow: 0 8px 26px rgba(233, 69, 96, 0.5);
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.ar-btn:active { background: var(--accent-hover); }
+.ar-btn svg { width: 20px; height: 20px; }
+
+/* download progress */
+.progress {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 3px;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.progress-fill {
+  height: 100%;
+  width: 0;
+  background: var(--accent);
+  transition: width 0.2s ease;
+}
+
+/* ---------- loading / error state ---------- */
+.state {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  padding: 24px;
+  text-align: center;
+  color: var(--text-dim);
+  font-size: 0.9375rem;
+  line-height: 1.7;
+}
+
+.state[hidden] { display: none; }
+
+.spinner {
+  width: 38px;
+  height: 38px;
+  border: 3px solid var(--border);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spin 0.9s linear infinite;
+}
+
+.spinner[hidden] { display: none; }
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.state-action {
+  color: var(--accent);
+  text-decoration: none;
+  font-weight: 700;
+  padding: 12px 20px;
+  border: 1px solid var(--accent);
+  border-radius: 999px;
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+}
+
+.state-action[hidden] { display: none; }
+
+/* ---------- bottom sheet ---------- */
+.sheet {
+  flex-shrink: 0;
+  background: var(--surface);
+  border-top: 1px solid var(--border);
+  padding: 16px 16px calc(16px + env(safe-area-inset-bottom));
+}
+
+.sheet[hidden] { display: none; }
+
+.sheet-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 6px;
+}
+
+.dish-name {
+  font-size: 1.1875rem;
+  font-weight: 700;
+  line-height: 1.4;
+}
+
+.dish-price {
+  font-size: 1.125rem;
+  font-weight: 800;
+  color: var(--accent);
+  white-space: nowrap;
+}
+
+.dish-desc {
+  font-size: 0.875rem;
+  color: var(--text-dim);
+  line-height: 1.65;
+  /* Long descriptions must not eat the 3D stage on a small screen. */
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.hint {
+  font-size: 0.75rem;
+  color: #8888a0;
+  margin-top: 10px;
+}
+
+.sheet-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.btn {
+  flex: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 48px;
+  padding: 12px 16px;
+  border: none;
+  border-radius: var(--radius);
+  font-family: inherit;
+  font-size: 0.9375rem;
+  font-weight: 700;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.btn svg { width: 18px; height: 18px; }
+
+.btn-accent { background: var(--accent); color: #fff; }
+.btn-accent:active { background: var(--accent-hover); }
+
+.btn-secondary {
+  background: transparent;
+  color: var(--text-dim);
+  border: 1px solid var(--border);
+}
+
+/* ---------- toasts ---------- */
+.toasts {
+  position: fixed;
+  bottom: 96px;
+  left: 16px;
+  right: 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  z-index: 50;
+  pointer-events: none;
+}
+
+.toast {
+  background: #232342;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 12px 18px;
+  font-size: 0.875rem;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  animation: rise 0.25s ease;
+  max-width: 100%;
+}
+
+.toast-success { border-color: #22c55e; }
+.toast-error { border-color: #ef4444; }
+
+@keyframes rise {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Landscape phones: give the model as much height as possible. */
+@media (max-height: 520px) {
+  .dish-desc, .hint { display: none; }
+  .sheet { padding-top: 10px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .spinner { animation-duration: 2s; }
+  .toast { animation: none; }
+}
